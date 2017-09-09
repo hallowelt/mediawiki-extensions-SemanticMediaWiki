@@ -180,6 +180,8 @@ class Settings extends Options {
 			'smwgEntityLookupFeatures' => $GLOBALS['smwgEntityLookupFeatures'],
 			'smwgFieldTypeFeatures' => $GLOBALS['smwgFieldTypeFeatures'],
 			'smwgChangePropagationProtection' => $GLOBALS['smwgChangePropagationProtection'],
+			'smwgMandatoryProperties' => $GLOBALS['smwgMandatoryProperties'],
+			'smwgMandatoryPropertyCheck' => $GLOBALS['smwgMandatoryPropertyCheck'],
 		);
 
 		self::initLegacyMapping( $configuration );

@@ -70,7 +70,8 @@ class ContainerSemanticData extends SemanticData {
 			'mHasVisibleSpecs',
 			'mNoDuplicates',
 			'skipAnonymousCheck',
-			'subSemanticData'
+			'subSemanticData',
+			'mandatoryProperties'
 		);
 	}
 
@@ -145,6 +146,20 @@ class ContainerSemanticData extends SemanticData {
 		$this->mHasVisibleProps = $semanticData->hasVisibleProperties();
 		$this->mHasVisibleSpecs = $semanticData->hasVisibleSpecialProperties();
 		$this->mNoDuplicates = $semanticData->mNoDuplicates;
+		$this->mandatoryProperties = $semanticData->getMandatoryProperties();
+	}
+
+	/**
+	 * Sets mandatory properties from the root data object during the post
+	 * processing since this has to be done after all #parser_functionss have
+	 * been processed inlcuding {{#mandatory: ... }}.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $mandatoryProperties
+	 */
+	public function setMandatoryProperties( array $mandatoryProperties ) {
+		$this->mandatoryProperties = $mandatoryProperties;
 	}
 
 }

@@ -59,8 +59,13 @@ class DIUriHandler extends DataItemHandler {
 	 */
 	public function getInsertValues( DataItem $dataItem ) {
 
-		$serialization = rawurldecode( $dataItem->getSerialization() );
-		$text = mb_strlen( $serialization ) <= $this->getMaxLength() ? null : $serialization;
+		if ( $dataItem->getOption( DataItem::IS_NULL ) === true ) {
+			$text = null;
+			$serialization = null;
+		} else {
+			$serialization = rawurldecode( $dataItem->getSerialization() );
+			$text = mb_strlen( $serialization ) <= $this->getMaxLength() ? null : $serialization;
+		}
 
 		// bytea type handling
 		if ( $text !== null && $this->isDbType( 'postgres' ) ) {

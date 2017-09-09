@@ -161,11 +161,13 @@ class SMWSQLStore3Writers {
 
 		// Update data about our subobjects
 		$subSemanticData = $semanticData->getSubSemanticData();
+		$mandatoryProperties = $semanticData->getMandatoryProperties();
 
 		$this->store->getConnection( 'mw.db' )->beginAtomicTransaction( __METHOD__ );
 
-		foreach( $subSemanticData as $subobjectData ) {
-			$this->doFlatDataUpdate( $subobjectData );
+		foreach( $subSemanticData as $containerSemanticData ) {
+			$containerSemanticData->setMandatoryProperties( $mandatoryProperties );
+			$this->doFlatDataUpdate( $containerSemanticData );
 		}
 
 		// Mark subobjects without reference to be deleted

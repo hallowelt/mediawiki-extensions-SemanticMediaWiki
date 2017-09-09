@@ -5,6 +5,7 @@ namespace SMW\Query\Language;
 use Exception;
 use SMW\DataValueFactory;
 use SMW\DIWikiPage;
+use SMW\Localizer;
 
 /**
  * Description of a single class as given by a wiki category, or of a
@@ -24,13 +25,17 @@ class ClassDescription extends Description {
 	protected $m_diWikiPages;
 
 	/**
-	 * Constructor.
-	 *
+	 * @var boolean
+	 */
+	private $isNot = false;
+
+	/**
 	 * @param mixed $content DIWikiPage or array of DIWikiPage
+	 * @param boolean $isNot
 	 *
 	 * @throws Exception
 	 */
-	public function __construct( $content ) {
+	public function __construct( $content, $isNot = false ) {
 		if ( $content instanceof DIWikiPage ) {
 			$this->m_diWikiPages = array( $content );
 		} elseif ( is_array( $content ) ) {
@@ -38,6 +43,8 @@ class ClassDescription extends Description {
 		} else {
 			throw new Exception( "ClassDescription::__construct(): parameter must be an DIWikiPage object or an array of such objects." );
 		}
+
+		$this->isNot = $isNot;
 	}
 
 	/**
@@ -63,7 +70,16 @@ class ClassDescription extends Description {
 
 		ksort( $hash );
 
-		return 'Cl:' . md5( implode( '|', array_keys( $hash ) ) );
+		return 'Cl:' . md5( implode( '|', array_keys( $hash ) ) . $this->isNot );
+	}
+
+	/**
+	 * @since 3.0
+	 *
+	 * @return boolean
+	 */
+	public function isNot() {
+		return $this->isNot;
 	}
 
 	/**
@@ -76,11 +92,13 @@ class ClassDescription extends Description {
 	public function getQueryString( $asValue = false ) {
 
 		$first = true;
+		$isNot = $this->isNot ? '!' : '';
+		$ns = Localizer::getInstance()->getNamespaceTextById( NS_CATEGORY );
 
 		foreach ( $this->m_diWikiPages as $wikiPage ) {
 			$wikiValue = DataValueFactory::getInstance()->newDataValueByItem( $wikiPage, null );
 			if ( $first ) {
-				$result = '[[' . $wikiValue->getPrefixedText();
+				$result = '[[' . $ns . ':' . $isNot . $wikiValue->getText();
 				$first = false;
 			} else {
 				$result .= '||' . $wikiValue->getText();
@@ -127,8 +145,8 @@ class ClassDescription extends Description {
 			$log[] = $this->getQueryString();
 			$result = new ThingDescription();
 		} else {
-			$result = new ClassDescription( array_slice( $this->m_diWikiPages, 0, $maxsize ) );
-			$rest = new ClassDescription( array_slice( $this->m_diWikiPages, $maxsize ) );
+			$result = new ClassDescription( array_slice( $this->m_diWikiPages, 0, $maxsize ), $this->isNot );
+			$rest = new ClassDescription( array_slice( $this->m_diWikiPages, $maxsize ), $this->isNot );
 
 			$log[] = $rest->getQueryString();
 			$maxsize = 0;

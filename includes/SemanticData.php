@@ -38,6 +38,11 @@ class SemanticData {
 	const OPT_LAST_MODIFIED = 'opt.last.modified';
 
 	/**
+	 * Identifies that a data block is created by a user.
+	 */
+	const USER_ANNOTATION = 'user.annotation';
+
+	/**
 	 * Cache for the localized version of the namespace prefix "Property:".
 	 *
 	 * @var string
@@ -68,6 +73,11 @@ class SemanticData {
 	 * @var DIProperty[]
 	 */
 	protected $mProperties = array();
+
+	/**
+	 * @var DIProperty[]
+	 */
+	protected $mandatoryProperties = [];
 
 	/**
 	 * States whether the container holds any normal properties.
@@ -182,7 +192,7 @@ class SemanticData {
 	 * @return array
 	 */
 	public function __sleep() {
-		return array( 'mSubject', 'mPropVals', 'mProperties', 'subSemanticData', 'mHasVisibleProps', 'mHasVisibleSpecs', 'options' );
+		return array( 'mSubject', 'mPropVals', 'mProperties', 'subSemanticData', 'mHasVisibleProps', 'mHasVisibleSpecs', 'options', 'mandatoryProperties' );
 	}
 
 	/**
@@ -213,6 +223,37 @@ class SemanticData {
 	 */
 	public function hasProperty( DIProperty $property ) {
 		return isset( $this->mProperties[$property->getKey()] ) || array_key_exists( $property->getKey(), $this->mProperties );
+	}
+
+	/**
+	 * @since 3.0
+	 *
+	 * @return DIProperty[]|[]
+	 */
+	public function getMandatoryProperties() {
+
+		if ( $this->mandatoryProperties !== [] ) {
+			return array_values( $this->mandatoryProperties );
+		}
+
+		// The subject has no registered individual mandatory properties therefore
+		// use the default once expected on each subject
+		$mandatoryProperties = [];
+
+		foreach ( $GLOBALS['smwgMandatoryProperties'] as $key ) {
+			$mandatoryProperties[] = DIProperty::newFromUserLabel( $key );
+		}
+
+		return $mandatoryProperties;
+	}
+
+	/**
+	 * @since 3.0
+	 *
+	 * @param DIProperty $mandatoryProperty
+	 */
+	public function addMandatoryProperty( DIProperty $mandatoryProperty ) {
+		$this->mandatoryProperties[$mandatoryProperty->getKey()] = $mandatoryProperty;
 	}
 
 	/**
@@ -594,6 +635,7 @@ class SemanticData {
 		$this->clearSubSemanticData();
 		$this->hash = null;
 		$this->options = null;
+		$this->mandatoryProperties = [];
 	}
 
 	/**
@@ -633,6 +675,7 @@ class SemanticData {
 		if ( count( $this->mProperties ) == 0 &&
 		     ( $semanticData->mNoDuplicates >= $this->mNoDuplicates ) ) {
 			$this->mProperties = $semanticData->getProperties();
+			$this->mandatoryProperties = $semanticData->getMandatoryProperties();
 			$this->mPropVals = array();
 
 			foreach ( $this->mProperties as $property ) {

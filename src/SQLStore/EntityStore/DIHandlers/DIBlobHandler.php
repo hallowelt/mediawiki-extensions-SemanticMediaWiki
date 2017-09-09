@@ -68,8 +68,13 @@ class DIBlobHandler extends DataItemHandler {
 	 */
 	public function getInsertValues( DataItem $dataItem ) {
 
-		$text = htmlspecialchars_decode( trim( $dataItem->getString() ), ENT_QUOTES );
-		$hash = $this->makeHash( $text );
+		if ( $dataItem->getOption( DataItem::IS_NULL ) === true ) {
+			$text = null;
+			$hash = null;
+		} else {
+			$text = htmlspecialchars_decode( trim( $dataItem->getString() ), ENT_QUOTES );
+			$hash = $this->makeHash( $text );
+		}
 
 		if ( $this->isDbType( 'postgres' ) ) {
 			$text = pg_escape_bytea( $text );

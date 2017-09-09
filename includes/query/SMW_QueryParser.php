@@ -116,7 +116,6 @@ class SMWQueryParser {
 			$result = new ThingDescription();
 		}
 
-
 		return $result;
 	}
 
@@ -311,12 +310,20 @@ class SMWQueryParser {
 				$description = new NamespaceDescription( $category ? NS_CATEGORY : SMW_NS_CONCEPT );
 				$result = $this->descriptionProcessor->constructDisjunctiveCompoundDescriptionFrom( $result, $description );
 			} else { // assume category/concept title
+
+				$isNot = false;
+
+				if ( $chunk !== '' && $chunk{0} === '!' ) {
+					$isNot = true;
+					$chunk = substr( $chunk, 1);
+				}
+
 				/// NOTE: we add m_c...prefix to prevent problems with, e.g., [[Category:Template:Test]]
 				$title = Title::newFromText( ( $category ? $this->categoryPrefix : $this->conceptPrefix ) . $chunk );
 
 				if ( !is_null( $title ) ) {
 					$diWikiPage = new SMWDIWikiPage( $title->getDBkey(), $title->getNameSpace(), '' );
-					$desc = $category ? new ClassDescription( $diWikiPage ) : new ConceptDescription( $diWikiPage );
+					$desc = $category ? new ClassDescription( $diWikiPage, $isNot ) : new ConceptDescription( $diWikiPage );
 					$result = $this->descriptionProcessor->constructDisjunctiveCompoundDescriptionFrom( $result, $desc );
 				}
 			}

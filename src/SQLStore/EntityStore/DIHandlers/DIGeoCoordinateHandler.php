@@ -80,11 +80,22 @@ class DIGeoCoordinateHandler extends DataItemHandler {
 	 * {@inheritDoc}
 	 */
 	public function getInsertValues( DataItem $dataItem ) {
-		return array(
-			'o_serialized' => $dataItem->getSerialization(),
-			'o_lat' => (string)$dataItem->getLatitude(),
-			'o_lon' => (string)$dataItem->getLongitude()
-		);
+
+		if ( $dataItem->getOption( DataItem::IS_NULL ) === true ) {
+			$serialized = null;
+			$lat = null;
+			$lon = null;
+		} else {
+			$serialized = $dataItem->getSerialization();
+			$lat = (string)$dataItem->getLatitude();
+			$lon = (string)$dataItem->getLongitude();
+		}
+
+		return [
+			'o_serialized' => $serialized,
+			'o_lat' => $lat,
+			'o_lon' => $lon
+		];
 	}
 
 	/**

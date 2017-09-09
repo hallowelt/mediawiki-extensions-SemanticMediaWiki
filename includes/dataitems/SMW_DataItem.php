@@ -29,6 +29,11 @@ use SMW\Options;
  */
 abstract class SMWDataItem {
 
+	/**
+	 * Option used in connection with mandatory properties
+	 */
+	const IS_NULL = 'is.null';
+
 	/// Data item ID that can be used to indicate that no data item class is appropriate
 	const TYPE_NOTYPE    = 0;
 	/// Data item ID for SMWDINumber

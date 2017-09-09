@@ -5,11 +5,13 @@ namespace SMW\SQLStore;
 use InvalidArgumentException;
 use RuntimeException;
 use SMW\Exception\DataItemException;
+use SMW\DataTypeRegistry;
 use SMW\DIProperty;
 use SMW\SemanticData;
 use SMW\Store;
 use SMWDIError as DIError;
 use SMWDataItem as DataItem;
+use SMW\DataModel\DataItems\DINull;
 
 /**
  * @license GNU GPL v2+
@@ -379,12 +381,73 @@ class PropertyTableRowDiffer {
 			}
 		}
 
+		$this->mapMandatoryProperties(
+			$sid,
+			$semanticData,
+			$subject,
+			$propertyTables,
+			$updates
+		);
+
 		// Special handling of Concepts
 		if ( $subject->getNamespace() === SMW_NS_CONCEPT && $subject->getSubobjectName() == '' ) {
 			$this->fetchConceptTableInserts( $sid, $updates );
 		}
 
 		return $updates;
+	}
+
+	private function mapMandatoryProperties( $sid, $semanticData, $subject, $propertyTables, &$updates ) {
+
+		// Skip any non-user subobjects (_QUERY..., _ERR... etc.)
+		if ( $subject->getSubobjectName() !== '' && $semanticData->getOption( SemanticData::USER_ANNOTATION ) !== true ) {
+			return;
+		}
+
+		$dataTypeRegistry = DataTypeRegistry::getInstance();
+
+		foreach ( $semanticData->getMandatoryProperties() as $property ) {
+
+			if ( $semanticData->hasProperty( $property )  ) {
+				continue;
+			}
+
+			$tableId = $this->store->findPropertyTableID( $property );
+
+			if ( !isset( $propertyTables[$tableId] ) ) {
+				continue;
+			}
+
+			$propertyTable = $propertyTables[$tableId];
+
+			if ( !array_key_exists( $propertyTable->getName(), $updates ) ) {
+				$updates[$propertyTable->getName()] = array();
+			}
+
+			$type = $dataTypeRegistry->getDataItemByType(
+				$property->findPropertyTypeID()
+			);
+
+			$dataItem = new DINull();
+
+			$dataItemValues = $this->store->getDataItemHandlerForDIType( $type )->getInsertValues(
+				$dataItem
+			);
+
+			$insertValues = [
+				's_id' => $sid
+			];
+
+			if ( !$propertyTable->isFixedPropertyTable() ) {
+				$insertValues['p_id'] = $this->store->getObjectIds()->makeSMWPropertyID( $property );
+			}
+
+			$insertValues = array_merge( $insertValues, $dataItemValues );
+
+			$insertValuesHash = md5( implode( '#', $insertValues ) );
+
+			$updates[$propertyTable->getName()][$insertValuesHash] = $insertValues;
+		}
 	}
 
 	/**

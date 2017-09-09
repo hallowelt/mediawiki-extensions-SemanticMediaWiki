@@ -118,6 +118,10 @@ class DIWikiPageHandler extends DataItemHandler {
 	 */
 	public function getInsertValues( DataItem $dataItem ) {
 
+		if ( $dataItem->getOption( DataItem::IS_NULL ) === true ) {
+			return [ 'o_id' => NULL ];
+		}
+
 		$oid = $this->store->getObjectIds()->makeSMWPageID(
 			$dataItem->getDBkey(),
 			$dataItem->getNamespace(),

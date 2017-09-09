@@ -500,7 +500,7 @@ return array(
 	#
 	# @since 1.0
 	##
-	'smwgQComparators' => '<|>|!~|!|~|≤|≥|<<|>>|~=|like:|nlike:',
+	'smwgQComparators' => '<|>|!~|!|~|≤|≥|<<|>>|~=|like:|nlike:|!+',
 	##
 
 	###
@@ -1670,5 +1670,31 @@ return array(
 	##
 	'smwgChangePropagationProtection' => true,
 	##
+
+	##
+	# List of mandatory properties
+	#
+	# Listed properties are expected to appear at least once on each entity.
+	#
+	# 'smwgMandatoryProperties' => array(
+	#		'Age',
+	#		'Has population'
+	# ),
+	#
+	# @since 3.0
+	# @default []
+	##
+	'smwgMandatoryProperties' => [],
+
+	##
+	# Check for mandatory properties
+	#
+	# Whether a check (and hereby notice) should be carried on the listed mandatory
+	# properties.
+	#
+	# @since 3.0
+	# @default false
+	##
+	'smwgMandatoryPropertyCheck' => false,
 
 );

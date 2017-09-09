@@ -50,6 +50,7 @@ class ThingDescriptionInterpreter implements DescriptionInterpreter {
 
 		$query = new QuerySegment();
 		$query->type = QuerySegment::Q_NOQUERY;
+		$query->isNull = false;
 
 		return $query;
 	}

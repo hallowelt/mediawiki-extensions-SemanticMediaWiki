@@ -10,6 +10,7 @@ use SMW\Message;
 use SMW\HashBuilder;
 use SMW\DataValueFactory;
 use SMW\DIProperty;
+use SMW\SemanticData;
 use Parser;
 
 /**
@@ -204,6 +205,13 @@ class SubobjectParserFunction {
 
 		$this->doAugmentSortKeyOnAccessibleDisplayTitle(
 			$this->subobject->getSemanticData()
+		);
+
+		// Signals to the PropertyTableRowDiffer that this subobject was created
+		// by a user
+		$this->subobject->getSemanticData()->setOption(
+			SemanticData::USER_ANNOTATION,
+			true
 		);
 
 		return true;

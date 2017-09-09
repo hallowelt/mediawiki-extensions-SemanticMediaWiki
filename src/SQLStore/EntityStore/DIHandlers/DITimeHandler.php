@@ -75,10 +75,19 @@ class DITimeHandler extends DataItemHandler {
 	 * {@inheritDoc}
 	 */
 	public function getInsertValues( DataItem $dataItem ) {
-		return array(
-			'o_serialized' => $dataItem->getSerialization(),
-			'o_sortkey' => $dataItem->getSortKey()
-		);
+
+		if ( $dataItem->getOption( DataItem::IS_NULL ) === true ) {
+			$serialized = null;
+			$time = null;
+		} else {
+			$serialized = $dataItem->getSerialization();
+			$time = $dataItem->getSortKey();
+		}
+
+		return [
+			'o_serialized' => $serialized,
+			'o_sortkey' => $time
+		];
 	}
 
 	/**

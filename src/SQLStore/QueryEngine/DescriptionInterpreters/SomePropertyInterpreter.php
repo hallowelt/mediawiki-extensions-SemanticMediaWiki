@@ -161,6 +161,10 @@ class SomePropertyInterpreter implements DescriptionInterpreter {
 			// $query->where = "{$query->alias}.p_id=" . $this->m_dbs->addQuotes( $pid );
 		} // else: no property column, no hierarchy queries
 
+		if ( $description->getDescription() instanceof ThingDescription ) {
+			$query->where = "{$query->alias}.$indexField IS NOT NULL";
+		}
+
 		// *** Add conditions on the value of the property ***//
 		if ( $diType === DataItem::TYPE_WIKIPAGE ) {
 			$o_id = $indexField;
@@ -301,7 +305,11 @@ class SomePropertyInterpreter implements DescriptionInterpreter {
 				$value
 			);
 
-			$where = "$query->alias.{$indexField}{$comparator}" . $db->addQuotes( $value );
+			if ( $description->getComparator() === SMW_CMP_NULL ) {
+				$where = "$query->alias.{$indexField} IS NULL";
+			} else{
+				$where = "$query->alias.{$indexField}{$comparator}" . $db->addQuotes( $value );
+			}
 		}
 
 		if ( $where !== '' ) {

@@ -57,6 +57,11 @@ class DIBooleanHandler extends DataItemHandler {
 	 * {@inheritDoc}
 	 */
 	public function getInsertValues( DataItem $dataItem ) {
+
+		if ( $dataItem->getOption( DataItem::IS_NULL ) === true ) {
+			return [ 'o_value' => NULL ];
+		}
+
 		return array(
 			'o_value' => $dataItem->getBoolean() ? 1 : 0,
 		);
